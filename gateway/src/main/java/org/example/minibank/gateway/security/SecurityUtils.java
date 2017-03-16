@@ -18,6 +18,24 @@ public final class SecurityUtils {
     }
 
     /**
+     * Get the id of the current user.
+     *
+     * @return the id of the current user
+     */
+    public static Long getCurrentUserId() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = securityContext.getAuthentication();
+        Long userId = null;
+        if (authentication != null) {
+            if (authentication.getPrincipal() instanceof CustomUserSession) {
+                CustomUserSession springSecurityUser = (CustomUserSession) authentication.getPrincipal();
+                userId = springSecurityUser.getUserId();
+            }
+        }
+        return userId;
+    }
+
+    /**
      * Get the login of the current user.
      *
      * @return the login of the current user
