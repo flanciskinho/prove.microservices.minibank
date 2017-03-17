@@ -1,0 +1,13 @@
+version: '2'
+services:
+    gateway-mariadb:
+        container_name: gateway-mariadb
+        image: mariadb:10.1.17
+        # volumes:
+        #     - ~/volumes/jhipster/gateway/mysql/:/var/lib/mysql/
+        environment:
+            - MYSQL_USER=root
+            - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+            - MYSQL_DATABASE=gateway
+        ports:
+            - 3306:3306
