@@ -1,13 +1,22 @@
 package org.example.minibank.accountoperation.security;
 
+import org.example.minibank.accountoperation.security.jwt.JWTConfigurer;
+import org.example.minibank.accountoperation.security.jwt.TokenProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for Spring Security.
@@ -15,6 +24,42 @@ import java.util.Collection;
 public final class SecurityUtils {
 
     private SecurityUtils() {
+    }
+
+    public static String getJwtToken() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        return getJwtToken(request);
+    }
+
+    private static String getJwtToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(JWTConfigurer.AUTHORIZATION_HEADER);
+
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken;
+        }
+
+        List<String> list = AuthoritiesConstants.authorities.stream().filter(SecurityUtils::isCurrentUserInRole).collect(Collectors.toList());
+
+        return "Bearer " + TokenProvider.createToken(getCurrentUserLogin(), list, getCurrentUserId());
+    }
+
+    /**
+     * Get the id of the current user.
+     *
+     * @return the id of the current user
+     */
+    public static Long getCurrentUserId() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = securityContext.getAuthentication();
+        Long userId = null;
+        if (authentication != null) {
+            if (authentication.getPrincipal() instanceof CustomUserSession) {
+                CustomUserSession springSecurityUser = (CustomUserSession) authentication.getPrincipal();
+                userId = springSecurityUser.getUserId();
+            }
+        }
+        return userId;
     }
 
     /**

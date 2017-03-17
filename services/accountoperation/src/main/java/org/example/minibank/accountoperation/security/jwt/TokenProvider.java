@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.example.minibank.accountoperation.security.CustomUserSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,12 +25,13 @@ public class TokenProvider {
     private final Logger log = LoggerFactory.getLogger(TokenProvider.class);
 
     private static final String AUTHORITIES_KEY = "auth";
+    private static final String USER_ID = "userId";
 
-    private String secretKey;
+    private static String secretKey;
 
-    private long tokenValidityInSeconds;
+    private static long tokenValidityInSeconds;
 
-    private long tokenValidityInSecondsForRememberMe;
+    private static long tokenValidityInSecondsForRememberMe;
 
     @Inject
     private JHipsterProperties jHipsterProperties;
@@ -45,7 +47,7 @@ public class TokenProvider {
             1000 * jHipsterProperties.getSecurity().getAuthentication().getJwt().getTokenValidityInSecondsForRememberMe();
     }
 
-    public String createToken(Authentication authentication, Boolean rememberMe) {
+    public String createToken(Authentication authentication, Boolean rememberMe, Long userId) {
         String authorities = authentication.getAuthorities().stream()
             .map(authority -> authority.getAuthority())
             .collect(Collectors.joining(","));
@@ -61,6 +63,29 @@ public class TokenProvider {
         return Jwts.builder()
             .setSubject(authentication.getName())
             .claim(AUTHORITIES_KEY, authorities)
+            .claim(USER_ID, userId)
+            .signWith(SignatureAlgorithm.HS512, secretKey)
+            .setExpiration(validity)
+            .compact();
+    }
+
+    /**
+     * create an authentication token for test
+     *
+     * @param name the name of the user
+     * @param authorizities user's roles
+     * @param userId user's identifier
+     * @return
+     */
+    public static String createToken(String name, List<String> authorizities, Long userId) {
+        String tmp = authorizities.stream().collect(Collectors.joining(","));
+
+        Date validity = new Date((new Date()).getTime() + tokenValidityInSecondsForRememberMe);
+
+        return Jwts.builder()
+            .setSubject(name)
+            .claim(AUTHORITIES_KEY, tmp)
+            .claim(USER_ID, userId)
             .signWith(SignatureAlgorithm.HS512, secretKey)
             .setExpiration(validity)
             .compact();
@@ -77,8 +102,8 @@ public class TokenProvider {
                 .map(authority -> new SimpleGrantedAuthority(authority))
                 .collect(Collectors.toList());
 
-        User principal = new User(claims.getSubject(), "",
-            authorities);
+        CustomUserSession principal = new CustomUserSession(claims.getSubject(), "",
+            authorities, claims.get(USER_ID).toString());
 
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
