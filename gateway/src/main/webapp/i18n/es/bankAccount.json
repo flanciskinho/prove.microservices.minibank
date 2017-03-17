@@ -1,0 +1,24 @@
+{
+    "gatewayApp": {
+        "bankAccount" : {
+            "home": {
+                "title": "Cuentas bancarias",
+                "createLabel": "Crear nueva cuenta bancaria",
+                "createOrEditLabel": "Crear o editar cuenta bancaria",
+                "search": "Buscar cuentas bancarias"
+            },
+            "created": "Una nueva cuenta ha sido creado con el identificador {{ param }}",
+            "updated": "Una cuenta ha sido actualizado con el identificador {{ param }}",
+            "deleted": "Una cuenta ha sido eliminado con el identificador {{ param }}",
+            "delete": {
+                "question": "¿Seguro que quiere eliminar la cuenta {{ id }}?"
+            },
+            "detail": {
+                "title": "Cuenta bancaria"
+            },
+            "userId": "Propietario",
+            "balance": "Balance",
+            "version": "Version"
+        }
+    }
+}

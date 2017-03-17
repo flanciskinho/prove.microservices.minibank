@@ -19,9 +19,6 @@ public class BankAccountDTO implements Serializable {
     @NotNull
     private BigDecimal balance;
 
-    @NotNull
-    private Long version;
-
 
     public Long getId() {
         return id;
@@ -43,13 +40,6 @@ public class BankAccountDTO implements Serializable {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
-    }
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
     }
 
     @Override
@@ -79,7 +69,6 @@ public class BankAccountDTO implements Serializable {
             "id=" + id +
             ", userId='" + userId + "'" +
             ", balance='" + balance + "'" +
-            ", version='" + version + "'" +
             '}';
     }
 }

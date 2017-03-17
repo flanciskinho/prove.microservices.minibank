@@ -16,6 +16,7 @@ public interface BankAccountMapper {
 
     List<BankAccountDTO> bankAccountsToBankAccountDTOs(List<BankAccount> bankAccounts);
 
+    @Mapping(target = "version", ignore = true)
     BankAccount bankAccountDTOToBankAccount(BankAccountDTO bankAccountDTO);
 
     List<BankAccount> bankAccountDTOsToBankAccounts(List<BankAccountDTO> bankAccountDTOs);
