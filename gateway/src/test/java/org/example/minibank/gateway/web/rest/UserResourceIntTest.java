@@ -6,6 +6,7 @@ import org.example.minibank.gateway.repository.UserRepository;
 import org.example.minibank.gateway.service.UserService;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.example.minibank.gateway.service.dto.LoginProfileDTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,6 +75,21 @@ public class UserResourceIntTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.lastName").value("Administrator"));
+    }
+
+    @Test
+    public void testGetExistingLogin() throws Exception {
+        User user = userService.getUserWithAuthoritiesByLogin("admin").get();
+        LoginProfileDTO loginProfileDTO = new LoginProfileDTO(user);
+
+        restUserMockMvc.perform(get("/api/users/login/"+user.getId())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.login").value(loginProfileDTO.getLogin()))
+            .andExpect(jsonPath("$.firstName").value(loginProfileDTO.getFirstName()))
+            .andExpect(jsonPath("$.langKey").value(loginProfileDTO.getLangKey()));
+
     }
 
     @Test
