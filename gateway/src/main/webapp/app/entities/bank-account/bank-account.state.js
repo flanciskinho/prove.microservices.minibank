@@ -82,33 +82,7 @@
                     return currentStateData;
                 }]
             }
-        })
-        .state('bank-account-detail.edit', {
-            parent: 'bank-account-detail',
-            url: '/detail/edit',
-            data: {
-                authorities: ['ROLE_USER']
-            },
-            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
-                $uibModal.open({
-                    templateUrl: 'app/entities/bank-account/bank-account-dialog.html',
-                    controller: 'BankAccountDialogController',
-                    controllerAs: 'vm',
-                    backdrop: 'static',
-                    size: 'lg',
-                    resolve: {
-                        entity: ['BankAccount', function(BankAccount) {
-                            return BankAccount.get({id : $stateParams.id}).$promise;
-                        }]
-                    }
-                }).result.then(function() {
-                    $state.go('^', {}, { reload: false });
-                }, function() {
-                    $state.go('^');
-                });
-            }]
-        })
-        .state('bank-account.new', {
+        }).state('bank-account.new', {
             parent: 'bank-account',
             url: '/new',
             data: {
@@ -134,55 +108,6 @@
                     $state.go('bank-account', null, { reload: 'bank-account' });
                 }, function() {
                     $state.go('bank-account');
-                });
-            }]
-        })
-        .state('bank-account.edit', {
-            parent: 'bank-account',
-            url: '/{id}/edit',
-            data: {
-                authorities: ['ROLE_USER']
-            },
-            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
-                $uibModal.open({
-                    templateUrl: 'app/entities/bank-account/bank-account-dialog.html',
-                    controller: 'BankAccountDialogController',
-                    controllerAs: 'vm',
-                    backdrop: 'static',
-                    size: 'lg',
-                    resolve: {
-                        entity: ['BankAccount', function(BankAccount) {
-                            return BankAccount.get({id : $stateParams.id}).$promise;
-                        }]
-                    }
-                }).result.then(function() {
-                    $state.go('bank-account', null, { reload: 'bank-account' });
-                }, function() {
-                    $state.go('^');
-                });
-            }]
-        })
-        .state('bank-account.delete', {
-            parent: 'bank-account',
-            url: '/{id}/delete',
-            data: {
-                authorities: ['ROLE_USER']
-            },
-            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
-                $uibModal.open({
-                    templateUrl: 'app/entities/bank-account/bank-account-delete-dialog.html',
-                    controller: 'BankAccountDeleteController',
-                    controllerAs: 'vm',
-                    size: 'md',
-                    resolve: {
-                        entity: ['BankAccount', function(BankAccount) {
-                            return BankAccount.get({id : $stateParams.id}).$promise;
-                        }]
-                    }
-                }).result.then(function() {
-                    $state.go('bank-account', null, { reload: 'bank-account' });
-                }, function() {
-                    $state.go('^');
                 });
             }]
         });

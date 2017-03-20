@@ -227,23 +227,6 @@ public class BankAccountResourceIntTest {
 
     @Test
     @Transactional
-    public void deleteBankAccount() throws Exception {
-        // Initialize the database
-        bankAccountRepository.saveAndFlush(bankAccount);
-        int databaseSizeBeforeDelete = bankAccountRepository.findAll().size();
-
-        // Get the bankAccount
-        restBankAccountMockMvc.perform(delete("/api/bank-accounts/{id}", bankAccount.getId())
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
-
-        // Validate the database is empty
-        List<BankAccount> bankAccounts = bankAccountRepository.findAll();
-        assertThat(bankAccounts).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
     public void addAmount() throws Exception {
         // Initialize the database
         bankAccountRepository.saveAndFlush(bankAccount);

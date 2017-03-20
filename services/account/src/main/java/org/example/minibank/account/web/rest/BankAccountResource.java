@@ -132,21 +132,4 @@ public class BankAccountResource {
                 HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
-    /**
-     * DELETE  /bank-accounts/:id : delete the "id" bankAccount.
-     *
-     * @param id the id of the bankAccountDTO to delete
-     * @return the ResponseEntity with status 200 (OK)
-     */
-    @RequestMapping(value = "/bank-accounts/{id}",
-        method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<Void> deleteBankAccount(@PathVariable Long id) {
-        log.debug("REST request to delete BankAccount : {}", id);
-        bankAccountService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("bankAccount", id.toString())).build();
-    }
-
 }
