@@ -1,0 +1,9 @@
+{
+    "gatewayApp": {
+        "AccountOperationType" : {
+            "null": "",
+            "ADD": "ADD",
+            "WITHDRAW": "WITHDRAW"
+        }
+    }
+}
