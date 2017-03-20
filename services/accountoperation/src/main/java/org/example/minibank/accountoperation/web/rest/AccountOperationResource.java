@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class AccountOperationResource {
 
     private final Logger log = LoggerFactory.getLogger(AccountOperationResource.class);
-        
+
     @Inject
     private AccountOperationService accountOperationService;
 
@@ -55,30 +55,6 @@ public class AccountOperationResource {
         AccountOperationDTO result = accountOperationService.save(accountOperationDTO);
         return ResponseEntity.created(new URI("/api/account-operations/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("accountOperation", result.getId().toString()))
-            .body(result);
-    }
-
-    /**
-     * PUT  /account-operations : Updates an existing accountOperation.
-     *
-     * @param accountOperationDTO the accountOperationDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated accountOperationDTO,
-     * or with status 400 (Bad Request) if the accountOperationDTO is not valid,
-     * or with status 500 (Internal Server Error) if the accountOperationDTO couldnt be updated
-     * @throws URISyntaxException if the Location URI syntax is incorrect
-     */
-    @RequestMapping(value = "/account-operations",
-        method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<AccountOperationDTO> updateAccountOperation(@Valid @RequestBody AccountOperationDTO accountOperationDTO) throws URISyntaxException {
-        log.debug("REST request to update AccountOperation : {}", accountOperationDTO);
-        if (accountOperationDTO.getId() == null) {
-            return createAccountOperation(accountOperationDTO);
-        }
-        AccountOperationDTO result = accountOperationService.save(accountOperationDTO);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert("accountOperation", accountOperationDTO.getId().toString()))
             .body(result);
     }
 
@@ -119,22 +95,6 @@ public class AccountOperationResource {
                 result,
                 HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    /**
-     * DELETE  /account-operations/:id : delete the "id" accountOperation.
-     *
-     * @param id the id of the accountOperationDTO to delete
-     * @return the ResponseEntity with status 200 (OK)
-     */
-    @RequestMapping(value = "/account-operations/{id}",
-        method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<Void> deleteAccountOperation(@PathVariable Long id) {
-        log.debug("REST request to delete AccountOperation : {}", id);
-        accountOperationService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("accountOperation", id.toString())).build();
     }
 
 }

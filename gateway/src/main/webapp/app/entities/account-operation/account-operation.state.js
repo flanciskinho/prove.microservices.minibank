@@ -29,7 +29,7 @@
                     squash: true
                 },
                 sort: {
-                    value: 'id,asc',
+                    value: 'date,desc',
                     squash: true
                 },
                 search: null
@@ -84,111 +84,6 @@
                     return currentStateData;
                 }]
             }
-        })
-        .state('account-operation-detail.edit', {
-            parent: 'account-operation-detail',
-            url: '/detail/edit',
-            data: {
-                authorities: ['ROLE_USER']
-            },
-            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
-                $uibModal.open({
-                    templateUrl: 'app/entities/account-operation/account-operation-dialog.html',
-                    controller: 'AccountOperationDialogController',
-                    controllerAs: 'vm',
-                    backdrop: 'static',
-                    size: 'lg',
-                    resolve: {
-                        entity: ['AccountOperation', function(AccountOperation) {
-                            return AccountOperation.get({id : $stateParams.id}).$promise;
-                        }]
-                    }
-                }).result.then(function() {
-                    $state.go('^', {}, { reload: false });
-                }, function() {
-                    $state.go('^');
-                });
-            }]
-        })
-        .state('account-operation.new', {
-            parent: 'account-operation',
-            url: '/new',
-            data: {
-                authorities: ['ROLE_USER']
-            },
-            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
-                $uibModal.open({
-                    templateUrl: 'app/entities/account-operation/account-operation-dialog.html',
-                    controller: 'AccountOperationDialogController',
-                    controllerAs: 'vm',
-                    backdrop: 'static',
-                    size: 'lg',
-                    resolve: {
-                        entity: function () {
-                            return {
-                                accountId: null,
-                                date: null,
-                                type: null,
-                                amount: null,
-                                id: null
-                            };
-                        }
-                    }
-                }).result.then(function() {
-                    $state.go('account-operation', null, { reload: 'account-operation' });
-                }, function() {
-                    $state.go('account-operation');
-                });
-            }]
-        })
-        .state('account-operation.edit', {
-            parent: 'account-operation',
-            url: '/{id}/edit',
-            data: {
-                authorities: ['ROLE_USER']
-            },
-            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
-                $uibModal.open({
-                    templateUrl: 'app/entities/account-operation/account-operation-dialog.html',
-                    controller: 'AccountOperationDialogController',
-                    controllerAs: 'vm',
-                    backdrop: 'static',
-                    size: 'lg',
-                    resolve: {
-                        entity: ['AccountOperation', function(AccountOperation) {
-                            return AccountOperation.get({id : $stateParams.id}).$promise;
-                        }]
-                    }
-                }).result.then(function() {
-                    $state.go('account-operation', null, { reload: 'account-operation' });
-                }, function() {
-                    $state.go('^');
-                });
-            }]
-        })
-        .state('account-operation.delete', {
-            parent: 'account-operation',
-            url: '/{id}/delete',
-            data: {
-                authorities: ['ROLE_USER']
-            },
-            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
-                $uibModal.open({
-                    templateUrl: 'app/entities/account-operation/account-operation-delete-dialog.html',
-                    controller: 'AccountOperationDeleteController',
-                    controllerAs: 'vm',
-                    size: 'md',
-                    resolve: {
-                        entity: ['AccountOperation', function(AccountOperation) {
-                            return AccountOperation.get({id : $stateParams.id}).$promise;
-                        }]
-                    }
-                }).result.then(function() {
-                    $state.go('account-operation', null, { reload: 'account-operation' });
-                }, function() {
-                    $state.go('^');
-                });
-            }]
         });
     }
 

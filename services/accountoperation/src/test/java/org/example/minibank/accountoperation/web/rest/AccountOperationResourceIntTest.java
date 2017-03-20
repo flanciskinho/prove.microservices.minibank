@@ -49,19 +49,13 @@ public class AccountOperationResourceIntTest {
 
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneId.of("Z"));
 
-
     private static final Long DEFAULT_ACCOUNT_ID = 1L;
-    private static final Long UPDATED_ACCOUNT_ID = 2L;
 
     private static final ZonedDateTime DEFAULT_DATE = ZonedDateTime.now();
-    private static final ZonedDateTime UPDATED_DATE = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
-    private static final String DEFAULT_DATE_STR = dateTimeFormatter.format(DEFAULT_DATE);
 
     private static final AccountOperationType DEFAULT_TYPE = AccountOperationType.ADD;
-    private static final AccountOperationType UPDATED_TYPE = AccountOperationType.WITHDRAW;
 
     private static final BigDecimal DEFAULT_AMOUNT = new BigDecimal(1);
-    private static final BigDecimal UPDATED_AMOUNT = new BigDecimal(2);
 
     @Inject
     private AccountOperationRepository accountOperationRepository;
@@ -233,53 +227,5 @@ public class AccountOperationResourceIntTest {
         // Get the accountOperation
         restAccountOperationMockMvc.perform(get("/api/account-operations/{id}", Long.MAX_VALUE))
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @Transactional
-    public void updateAccountOperation() throws Exception {
-        // Initialize the database
-        accountOperationRepository.saveAndFlush(accountOperation);
-        int databaseSizeBeforeUpdate = accountOperationRepository.findAll().size();
-
-        // Update the accountOperation
-        AccountOperation updatedAccountOperation = accountOperationRepository.findOne(accountOperation.getId());
-        updatedAccountOperation
-                .accountId(UPDATED_ACCOUNT_ID)
-                .date(UPDATED_DATE)
-                .type(UPDATED_TYPE)
-                .amount(UPDATED_AMOUNT);
-        AccountOperationDTO accountOperationDTO = accountOperationMapper.accountOperationToAccountOperationDTO(updatedAccountOperation);
-
-        restAccountOperationMockMvc.perform(put("/api/account-operations")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(accountOperationDTO)))
-                .andExpect(status().isOk());
-
-        // Validate the AccountOperation in the database
-        List<AccountOperation> accountOperations = accountOperationRepository.findAll();
-        assertThat(accountOperations).hasSize(databaseSizeBeforeUpdate);
-        AccountOperation testAccountOperation = accountOperations.get(accountOperations.size() - 1);
-        assertThat(testAccountOperation.getAccountId()).isEqualTo(UPDATED_ACCOUNT_ID);
-        assertThat(testAccountOperation.getDate()).isAfterOrEqualTo(DEFAULT_DATE);
-        assertThat(testAccountOperation.getType()).isEqualTo(UPDATED_TYPE);
-        assertThat(testAccountOperation.getAmount()).isEqualTo(UPDATED_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void deleteAccountOperation() throws Exception {
-        // Initialize the database
-        accountOperationRepository.saveAndFlush(accountOperation);
-        int databaseSizeBeforeDelete = accountOperationRepository.findAll().size();
-
-        // Get the accountOperation
-        restAccountOperationMockMvc.perform(delete("/api/account-operations/{id}", accountOperation.getId())
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
-
-        // Validate the database is empty
-        List<AccountOperation> accountOperations = accountOperationRepository.findAll();
-        assertThat(accountOperations).hasSize(databaseSizeBeforeDelete - 1);
     }
 }
