@@ -11,11 +11,32 @@
 # ===================================================================
 
 eureka:
-    client:
-        enabled: false
     instance:
         appname: account
         instanceId: account:${spring.application.instance_id:${random.value}}
+        prefer-ip-address: true
+    client:
+        enabled: true
+        healthcheck:
+            enabled: true
+        registerWithEureka: true
+        fetchRegistry: true
+        serviceUrl:
+            defaultZone: http://admin:admin@localhost:8761/eureka/
+
+ribbon:
+    eureka:
+        enabled: true
+    ConnectTimeout: 3000
+    ReadTimeout: 5000
+
+hystrix:
+    command.default.execution.isolation.thread.timeoutInMilliseconds: 2000
+    threadpool:
+        default:
+            coreSize: 50
+            maxQueueSize: 100
+            queueSizeRejectionThreshold: 50
 
 spring:
     application:

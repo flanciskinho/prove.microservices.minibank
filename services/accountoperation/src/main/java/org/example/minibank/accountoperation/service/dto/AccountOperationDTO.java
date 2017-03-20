@@ -18,7 +18,6 @@ public class AccountOperationDTO implements Serializable {
     @NotNull
     private Long accountId;
 
-    @NotNull
     private ZonedDateTime date;
 
     @NotNull

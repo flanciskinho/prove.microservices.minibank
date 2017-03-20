@@ -2,13 +2,17 @@ package org.example.minibank.account.service;
 
 import org.example.minibank.account.domain.BankAccount;
 import org.example.minibank.account.repository.BankAccountRepository;
+import org.example.minibank.account.security.SecurityUtils;
 import org.example.minibank.account.service.dto.AmountDTO;
 import org.example.minibank.account.service.dto.BankAccountDTO;
+import org.example.minibank.account.service.dto.OperationDTO;
 import org.example.minibank.account.service.mapper.BankAccountMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -28,11 +32,23 @@ public class BankAccountService {
     private final Logger log = LoggerFactory.getLogger(BankAccountService.class);
 
     @Inject
+    private AccountOperationService accountOperationService;
+
+    @Inject
     private BankAccountRepository bankAccountRepository;
 
     @Inject
     private BankAccountMapper bankAccountMapper;
 
+    private OperationDTO createOperation(AmountDTO amountDTO, OperationDTO.AccountOperationType type) {
+        OperationDTO operationDTO = new OperationDTO(null, amountDTO.getAccountId(), amountDTO.getAmount(), type);
+        ResponseEntity<OperationDTO> responseEntity = accountOperationService.createOperation(operationDTO, SecurityUtils.getJwtToken());
+
+        if (responseEntity == null || !responseEntity.getStatusCode().equals(HttpStatus.CREATED))
+            return null;
+
+        return responseEntity.getBody();
+    }
 
     public BankAccountDTO addAmount(AmountDTO amountDTO) {
         log.debug("Request to addAmount. AmountDTO {}", amountDTO);
@@ -47,6 +63,9 @@ public class BankAccountService {
             log.debug("INVALID. Try to add on non-exit account {}", amountDTO.getAccountId());
             return null;
         }
+
+        if (createOperation(amountDTO, OperationDTO.AccountOperationType.ADD) == null)
+            return null;
 
         bankAccount.setBalance(bankAccount.getBalance().add(amountDTO.getAmount()));
 
@@ -75,6 +94,9 @@ public class BankAccountService {
             return null;
         }
 
+        if (createOperation(amountDTO, OperationDTO.AccountOperationType.WITHDRAW) == null)
+            return null;
+
         bankAccount.setBalance(tmp.subtract(amountDTO.getAmount()));
 
         bankAccount = bankAccountRepository.save(bankAccount);
@@ -91,12 +113,22 @@ public class BankAccountService {
     public BankAccountDTO save(BankAccountDTO bankAccountDTO) {
         log.debug("Request to save BankAccount : {}", bankAccountDTO);
 
-        BankAccount bankAccount = bankAccountMapper.bankAccountDTOToBankAccount(bankAccountDTO);
-
         if (bankAccountDTO.getId() != null) {
-            BankAccount account = bankAccountRepository.findOne(bankAccountDTO.getId());
-            if (account != null)
-                bankAccount.setVersion(account.getVersion());
+            log.debug("INVALID. cannot create account with specific id");
+            return null;
+        }
+
+        BankAccount bankAccount = bankAccountMapper.bankAccountDTOToBankAccount(bankAccountDTO);
+        bankAccount.setUserId(SecurityUtils.getCurrentUserId());
+
+        BigDecimal amount = bankAccountDTO.getBalance();
+        if (amount.compareTo(BigDecimal.ZERO) == 1) {
+            bankAccount.setBalance(BigDecimal.ZERO);
+            bankAccount = bankAccountRepository.save(bankAccount);
+            AmountDTO amountDTO = new AmountDTO(bankAccount.getId(), bankAccountDTO.getBalance());
+            if (createOperation(amountDTO, OperationDTO.AccountOperationType.ADD) == null)
+                return null;
+            bankAccount.setBalance(amount);
         }
 
         bankAccount = bankAccountRepository.save(bankAccount);

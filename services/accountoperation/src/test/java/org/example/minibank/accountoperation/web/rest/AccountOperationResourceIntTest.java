@@ -53,7 +53,7 @@ public class AccountOperationResourceIntTest {
     private static final Long DEFAULT_ACCOUNT_ID = 1L;
     private static final Long UPDATED_ACCOUNT_ID = 2L;
 
-    private static final ZonedDateTime DEFAULT_DATE = ZonedDateTime.now().minusYears(1);
+    private static final ZonedDateTime DEFAULT_DATE = ZonedDateTime.now();
     private static final ZonedDateTime UPDATED_DATE = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
     private static final String DEFAULT_DATE_STR = dateTimeFormatter.format(DEFAULT_DATE);
 
@@ -133,7 +133,7 @@ public class AccountOperationResourceIntTest {
         assertThat(accountOperations).hasSize(databaseSizeBeforeCreate + 1);
         AccountOperation testAccountOperation = accountOperations.get(accountOperations.size() - 1);
         assertThat(testAccountOperation.getAccountId()).isEqualTo(DEFAULT_ACCOUNT_ID);
-        assertThat(testAccountOperation.getDate()).isEqualTo(DEFAULT_DATE);
+        assertThat(testAccountOperation.getDate()).isAfterOrEqualTo(DEFAULT_DATE);
         assertThat(testAccountOperation.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testAccountOperation.getAmount()).isEqualTo(DEFAULT_AMOUNT);
     }
@@ -144,25 +144,6 @@ public class AccountOperationResourceIntTest {
         int databaseSizeBeforeTest = accountOperationRepository.findAll().size();
         // set the field null
         accountOperation.setAccountId(null);
-
-        // Create the AccountOperation, which fails.
-        AccountOperationDTO accountOperationDTO = accountOperationMapper.accountOperationToAccountOperationDTO(accountOperation);
-
-        restAccountOperationMockMvc.perform(post("/api/account-operations")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(accountOperationDTO)))
-                .andExpect(status().isBadRequest());
-
-        List<AccountOperation> accountOperations = accountOperationRepository.findAll();
-        assertThat(accountOperations).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
-    public void checkDateIsRequired() throws Exception {
-        int databaseSizeBeforeTest = accountOperationRepository.findAll().size();
-        // set the field null
-        accountOperation.setDate(null);
 
         // Create the AccountOperation, which fails.
         AccountOperationDTO accountOperationDTO = accountOperationMapper.accountOperationToAccountOperationDTO(accountOperation);
@@ -226,7 +207,6 @@ public class AccountOperationResourceIntTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(accountOperation.getId().intValue())))
                 .andExpect(jsonPath("$.[*].accountId").value(hasItem(DEFAULT_ACCOUNT_ID.intValue())))
-                .andExpect(jsonPath("$.[*].date").value(hasItem(DEFAULT_DATE_STR)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
                 .andExpect(jsonPath("$.[*].amount").value(hasItem(DEFAULT_AMOUNT.intValue())));
     }
@@ -243,7 +223,6 @@ public class AccountOperationResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(accountOperation.getId().intValue()))
             .andExpect(jsonPath("$.accountId").value(DEFAULT_ACCOUNT_ID.intValue()))
-            .andExpect(jsonPath("$.date").value(DEFAULT_DATE_STR))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
             .andExpect(jsonPath("$.amount").value(DEFAULT_AMOUNT.intValue()));
     }
@@ -282,7 +261,7 @@ public class AccountOperationResourceIntTest {
         assertThat(accountOperations).hasSize(databaseSizeBeforeUpdate);
         AccountOperation testAccountOperation = accountOperations.get(accountOperations.size() - 1);
         assertThat(testAccountOperation.getAccountId()).isEqualTo(UPDATED_ACCOUNT_ID);
-        assertThat(testAccountOperation.getDate()).isEqualTo(UPDATED_DATE);
+        assertThat(testAccountOperation.getDate()).isAfterOrEqualTo(DEFAULT_DATE);
         assertThat(testAccountOperation.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testAccountOperation.getAmount()).isEqualTo(UPDATED_AMOUNT);
     }

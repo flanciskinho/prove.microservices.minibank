@@ -87,32 +87,10 @@ public class BankAccountResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("bankAccount", "idexists", "A new bankAccount cannot already have an ID")).body(null);
         }
         BankAccountDTO result = bankAccountService.save(bankAccountDTO);
-        return ResponseEntity.created(new URI("/api/bank-accounts/" + result.getId()))
+        return (result == null) ?
+            ResponseEntity.badRequest().body(null):
+            ResponseEntity.created(new URI("/api/bank-accounts/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("bankAccount", result.getId().toString()))
-            .body(result);
-    }
-
-    /**
-     * PUT  /bank-accounts : Updates an existing bankAccount.
-     *
-     * @param bankAccountDTO the bankAccountDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated bankAccountDTO,
-     * or with status 400 (Bad Request) if the bankAccountDTO is not valid,
-     * or with status 500 (Internal Server Error) if the bankAccountDTO couldnt be updated
-     * @throws URISyntaxException if the Location URI syntax is incorrect
-     */
-    @RequestMapping(value = "/bank-accounts",
-        method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<BankAccountDTO> updateBankAccount(@Valid @RequestBody BankAccountDTO bankAccountDTO) throws URISyntaxException {
-        log.debug("REST request to update BankAccount : {}", bankAccountDTO);
-        if (bankAccountDTO.getId() == null) {
-            return createBankAccount(bankAccountDTO);
-        }
-        BankAccountDTO result = bankAccountService.save(bankAccountDTO);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert("bankAccount", bankAccountDTO.getId().toString()))
             .body(result);
     }
 

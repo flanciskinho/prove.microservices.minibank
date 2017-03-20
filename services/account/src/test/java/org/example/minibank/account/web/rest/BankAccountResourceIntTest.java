@@ -2,8 +2,10 @@ package org.example.minibank.account.web.rest;
 
 import org.example.minibank.account.AccountApp;
 
+import org.example.minibank.account.config.JHipsterProperties;
 import org.example.minibank.account.domain.BankAccount;
 import org.example.minibank.account.repository.BankAccountRepository;
+import org.example.minibank.account.security.SecurityUtilTest;
 import org.example.minibank.account.service.BankAccountService;
 import org.example.minibank.account.service.dto.AmountDTO;
 import org.example.minibank.account.service.dto.BankAccountDTO;
@@ -14,11 +16,26 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.hamcrest.Matchers.hasItem;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.actuate.autoconfigure.MetricFilterAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.transaction.AfterTransaction;
+import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -43,12 +60,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = AccountApp.class)
 public class BankAccountResourceIntTest {
 
+    private Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static final Long DEFAULT_USER_ID = 1L;
-    private static final Long UPDATED_USER_ID = 2L;
 
     private static final BigDecimal DEFAULT_BALANCE = new BigDecimal(1);
-    private static final BigDecimal UPDATED_BALANCE = new BigDecimal(2);
 
     @Inject
     private BankAccountRepository bankAccountRepository;
@@ -71,6 +87,17 @@ public class BankAccountResourceIntTest {
     private MockMvc restBankAccountMockMvc;
 
     private BankAccount bankAccount;
+
+    private ConfigurableApplicationContext configurableApplicationContext;
+    @BeforeTransaction
+    private void startAppForMicroservices() {
+        String args[] = {};
+        configurableApplicationContext = new SpringApplicationBuilder(AccountApp.class).web(true).run(args);
+    }
+    @AfterTransaction
+    private void endAppForMicroservices() {
+        configurableApplicationContext.close();
+    }
 
     @PostConstruct
     public void setup() {
@@ -98,6 +125,7 @@ public class BankAccountResourceIntTest {
     @Before
     public void initTest() {
         bankAccount = createEntity(em);
+        SecurityUtilTest.authenticate(DEFAULT_USER_ID, "user", SecurityUtilTest.USER_ROLE);
     }
 
     @Test
@@ -195,33 +223,6 @@ public class BankAccountResourceIntTest {
         // Get the bankAccount
         restBankAccountMockMvc.perform(get("/api/bank-accounts/{id}", Long.MAX_VALUE))
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @Transactional
-    public void updateBankAccount() throws Exception {
-        // Initialize the database
-        bankAccountRepository.saveAndFlush(bankAccount);
-        int databaseSizeBeforeUpdate = bankAccountRepository.findAll().size();
-
-        // Update the bankAccount
-        BankAccount updatedBankAccount = bankAccountRepository.findOne(bankAccount.getId());
-        updatedBankAccount
-                .userId(UPDATED_USER_ID)
-                .balance(UPDATED_BALANCE);
-        BankAccountDTO bankAccountDTO = bankAccountMapper.bankAccountToBankAccountDTO(updatedBankAccount);
-
-        restBankAccountMockMvc.perform(put("/api/bank-accounts")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(bankAccountDTO)))
-                .andExpect(status().isOk());
-
-        // Validate the BankAccount in the database
-        List<BankAccount> bankAccounts = bankAccountRepository.findAll();
-        assertThat(bankAccounts).hasSize(databaseSizeBeforeUpdate);
-        BankAccount testBankAccount = bankAccounts.get(bankAccounts.size() - 1);
-        assertThat(testBankAccount.getUserId()).isEqualTo(UPDATED_USER_ID);
-        assertThat(testBankAccount.getBalance()).isEqualTo(UPDATED_BALANCE);
     }
 
     @Test

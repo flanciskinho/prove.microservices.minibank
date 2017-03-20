@@ -89,6 +89,8 @@ jhipster:
             enabled: false
         authorized-microservices-endpoints: # Access Control Policy, if left empty for a route, all endpoints will be accessible
             app1: /api,/v2/api-docs # recommended dev configuration
+            account: /account,/v2/api-docs
+            accountoperation: /accountoperation,/v2/api-docs
     cache: # Hibernate 2nd level cache, used by CacheConfiguration
         timeToLiveSeconds: 3600
         ehcache:
