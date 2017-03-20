@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class BankAccountService {
 
     private final Logger log = LoggerFactory.getLogger(BankAccountService.class);
-    
+
     @Inject
     private BankAccountRepository bankAccountRepository;
 
@@ -39,7 +39,15 @@ public class BankAccountService {
      */
     public BankAccountDTO save(BankAccountDTO bankAccountDTO) {
         log.debug("Request to save BankAccount : {}", bankAccountDTO);
+
         BankAccount bankAccount = bankAccountMapper.bankAccountDTOToBankAccount(bankAccountDTO);
+
+        if (bankAccountDTO.getId() != null) {
+            BankAccount account = bankAccountRepository.findOne(bankAccountDTO.getId());
+            if (account != null)
+                bankAccount.setVersion(account.getVersion());
+        }
+
         bankAccount = bankAccountRepository.save(bankAccount);
         BankAccountDTO result = bankAccountMapper.bankAccountToBankAccountDTO(bankAccount);
         return result;
@@ -47,11 +55,11 @@ public class BankAccountService {
 
     /**
      *  Get all the bankAccounts.
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public Page<BankAccountDTO> findAll(Pageable pageable) {
         log.debug("Request to get all BankAccounts");
         Page<BankAccount> result = bankAccountRepository.findAll(pageable);
@@ -64,7 +72,7 @@ public class BankAccountService {
      *  @param id the id of the entity
      *  @return the entity
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public BankAccountDTO findOne(Long id) {
         log.debug("Request to get BankAccount : {}", id);
         BankAccount bankAccount = bankAccountRepository.findOne(id);

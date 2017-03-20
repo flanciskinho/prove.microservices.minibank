@@ -1,0 +1,34 @@
+{
+    "fluentMethods": true,
+    "relationships": [],
+    "fields": [
+        {
+            "fieldName": "userId",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "balance",
+            "fieldType": "BigDecimal",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "version",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "changelogDate": "20170316190006",
+    "dto": "mapstruct",
+    "service": "serviceClass",
+    "entityTableName": "bank_account",
+    "pagination": "pagination",
+    "microserviceName": "account",
+    "searchEngine": false
+}

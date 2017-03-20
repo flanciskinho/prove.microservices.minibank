@@ -1,0 +1,25 @@
+{
+    "gatewayApp": {
+        "accountOperation" : {
+            "home": {
+                "title": "Operaciones bancarias",
+                "createLabel": "Crear una nueva operación",
+                "createOrEditLabel": "Crear o editar una operación",
+                "search": "Search for Account Operation"
+            },
+            "created": "Una operación ha sido creada con el identificador {{ param }}",
+            "updated": "Una operación ha sido actualizada con el identificador {{ param }}",
+            "deleted": "Una operación ha sido eliminada con el identificador {{ param }}",
+            "delete": {
+                "question": "¿Seguro que quiere eliminar la operación {{ id }}?"
+            },
+            "detail": {
+                "title": "Operación bancaria"
+            },
+            "accountId": "Cuenta bancaria",
+            "date": "Fecha",
+            "type": "Tipo",
+            "amount": "Cantidad"
+        }
+    }
+}

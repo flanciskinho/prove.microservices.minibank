@@ -7,6 +7,7 @@ import org.example.minibank.gateway.repository.UserRepository;
 import org.example.minibank.gateway.security.AuthoritiesConstants;
 import org.example.minibank.gateway.service.MailService;
 import org.example.minibank.gateway.service.UserService;
+import org.example.minibank.gateway.service.dto.LoginProfileDTO;
 import org.example.minibank.gateway.web.rest.vm.ManagedUserVM;
 import org.example.minibank.gateway.web.rest.util.HeaderUtil;
 import org.example.minibank.gateway.web.rest.util.PaginationUtil;
@@ -146,7 +147,7 @@ public class UserResource {
 
     /**
      * GET  /users : get all users.
-     * 
+     *
      * @param pageable the pagination information
      * @return the ResponseEntity with status 200 (OK) and with body all users
      * @throws URISyntaxException if the pagination headers couldn't be generated
@@ -181,6 +182,24 @@ public class UserResource {
                 .map(ManagedUserVM::new)
                 .map(managedUserVM -> new ResponseEntity<>(managedUserVM, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET  /users/login/:id : get the "login" user.
+     *
+     * @param id the identifier of the user to find
+     * @return the ResponseEntity with status 200 (OK) and with body the "login" user, or with status 404 (Not Found)
+     */
+    @RequestMapping(value = "/users/login/{id}",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<LoginProfileDTO> getUser(@PathVariable Long id) {
+        log.debug("REST request to get LoginProfile : {}", id);
+        User user = userService.getUserWithAuthorities(id);
+        return (user == null)?
+            new ResponseEntity(HttpStatus.NOT_FOUND):
+            new ResponseEntity(new LoginProfileDTO(user), HttpStatus.OK);
     }
 
     /**

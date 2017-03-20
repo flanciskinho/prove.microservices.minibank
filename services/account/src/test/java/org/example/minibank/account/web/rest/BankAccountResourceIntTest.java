@@ -49,9 +49,6 @@ public class BankAccountResourceIntTest {
     private static final BigDecimal DEFAULT_BALANCE = new BigDecimal(1);
     private static final BigDecimal UPDATED_BALANCE = new BigDecimal(2);
 
-    private static final Long DEFAULT_VERSION = 1L;
-    private static final Long UPDATED_VERSION = 2L;
-
     @Inject
     private BankAccountRepository bankAccountRepository;
 
@@ -93,8 +90,7 @@ public class BankAccountResourceIntTest {
     public static BankAccount createEntity(EntityManager em) {
         BankAccount bankAccount = new BankAccount()
                 .userId(DEFAULT_USER_ID)
-                .balance(DEFAULT_BALANCE)
-                .version(DEFAULT_VERSION);
+                .balance(DEFAULT_BALANCE);
         return bankAccount;
     }
 
@@ -122,7 +118,6 @@ public class BankAccountResourceIntTest {
         BankAccount testBankAccount = bankAccounts.get(bankAccounts.size() - 1);
         assertThat(testBankAccount.getUserId()).isEqualTo(DEFAULT_USER_ID);
         assertThat(testBankAccount.getBalance()).isEqualTo(DEFAULT_BALANCE);
-        assertThat(testBankAccount.getVersion()).isEqualTo(DEFAULT_VERSION);
     }
 
     @Test
@@ -165,25 +160,6 @@ public class BankAccountResourceIntTest {
 
     @Test
     @Transactional
-    public void checkVersionIsRequired() throws Exception {
-        int databaseSizeBeforeTest = bankAccountRepository.findAll().size();
-        // set the field null
-        bankAccount.setVersion(null);
-
-        // Create the BankAccount, which fails.
-        BankAccountDTO bankAccountDTO = bankAccountMapper.bankAccountToBankAccountDTO(bankAccount);
-
-        restBankAccountMockMvc.perform(post("/api/bank-accounts")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(bankAccountDTO)))
-                .andExpect(status().isBadRequest());
-
-        List<BankAccount> bankAccounts = bankAccountRepository.findAll();
-        assertThat(bankAccounts).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
     public void getAllBankAccounts() throws Exception {
         // Initialize the database
         bankAccountRepository.saveAndFlush(bankAccount);
@@ -194,8 +170,7 @@ public class BankAccountResourceIntTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(bankAccount.getId().intValue())))
                 .andExpect(jsonPath("$.[*].userId").value(hasItem(DEFAULT_USER_ID.intValue())))
-                .andExpect(jsonPath("$.[*].balance").value(hasItem(DEFAULT_BALANCE.intValue())))
-                .andExpect(jsonPath("$.[*].version").value(hasItem(DEFAULT_VERSION.intValue())));
+                .andExpect(jsonPath("$.[*].balance").value(hasItem(DEFAULT_BALANCE.intValue())));
     }
 
     @Test
@@ -210,8 +185,7 @@ public class BankAccountResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(bankAccount.getId().intValue()))
             .andExpect(jsonPath("$.userId").value(DEFAULT_USER_ID.intValue()))
-            .andExpect(jsonPath("$.balance").value(DEFAULT_BALANCE.intValue()))
-            .andExpect(jsonPath("$.version").value(DEFAULT_VERSION.intValue()));
+            .andExpect(jsonPath("$.balance").value(DEFAULT_BALANCE.intValue()));
     }
 
     @Test
@@ -233,8 +207,7 @@ public class BankAccountResourceIntTest {
         BankAccount updatedBankAccount = bankAccountRepository.findOne(bankAccount.getId());
         updatedBankAccount
                 .userId(UPDATED_USER_ID)
-                .balance(UPDATED_BALANCE)
-                .version(UPDATED_VERSION);
+                .balance(UPDATED_BALANCE);
         BankAccountDTO bankAccountDTO = bankAccountMapper.bankAccountToBankAccountDTO(updatedBankAccount);
 
         restBankAccountMockMvc.perform(put("/api/bank-accounts")
@@ -248,7 +221,6 @@ public class BankAccountResourceIntTest {
         BankAccount testBankAccount = bankAccounts.get(bankAccounts.size() - 1);
         assertThat(testBankAccount.getUserId()).isEqualTo(UPDATED_USER_ID);
         assertThat(testBankAccount.getBalance()).isEqualTo(UPDATED_BALANCE);
-        assertThat(testBankAccount.getVersion()).isEqualTo(UPDATED_VERSION);
     }
 
     @Test

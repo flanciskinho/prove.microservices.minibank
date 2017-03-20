@@ -31,7 +31,7 @@ public class BankAccount implements Serializable {
     @Column(name = "balance", precision=10, scale=2, nullable = false)
     private BigDecimal balance;
 
-    @NotNull
+    @Version
     @Column(name = "version", nullable = false)
     private Long version;
 
