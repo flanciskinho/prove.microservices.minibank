@@ -8,6 +8,7 @@
             "entities": {
                 "main": "Entidades",
                 "bankAccount": "Cuenta bancaria",
+                "accountOperation": "Operaciones bancarias",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {
