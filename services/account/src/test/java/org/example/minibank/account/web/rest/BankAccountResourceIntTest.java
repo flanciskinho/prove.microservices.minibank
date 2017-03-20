@@ -5,6 +5,7 @@ import org.example.minibank.account.AccountApp;
 import org.example.minibank.account.domain.BankAccount;
 import org.example.minibank.account.repository.BankAccountRepository;
 import org.example.minibank.account.service.BankAccountService;
+import org.example.minibank.account.service.dto.AmountDTO;
 import org.example.minibank.account.service.dto.BankAccountDTO;
 import org.example.minibank.account.service.mapper.BankAccountMapper;
 
@@ -238,5 +239,55 @@ public class BankAccountResourceIntTest {
         // Validate the database is empty
         List<BankAccount> bankAccounts = bankAccountRepository.findAll();
         assertThat(bankAccounts).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void addAmount() throws Exception {
+        // Initialize the database
+        bankAccountRepository.saveAndFlush(bankAccount);
+        int databaseSizeBefore = bankAccountRepository.findAll().size();
+
+        BigDecimal amount = new BigDecimal(1000);
+        AmountDTO amountDTO = new AmountDTO(bankAccount.getId(), amount);
+
+        // Do the operation
+        restBankAccountMockMvc.perform(post("/api/bank-accounts/add")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(amountDTO)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").value(bankAccount.getId().intValue()))
+            .andExpect(jsonPath("$.userId").value(DEFAULT_USER_ID.intValue()))
+            .andExpect(jsonPath("$.balance").value(DEFAULT_BALANCE.intValue()+amount.intValue()));
+
+        // Validate the database has the same size
+        List<BankAccount> bankAccounts = bankAccountRepository.findAll();
+        assertThat(bankAccounts).hasSize(databaseSizeBefore);
+    }
+
+    @Test
+    @Transactional
+    public void withDrawAmount() throws Exception {
+        // Initialize the database
+        BigDecimal initialAmount = new BigDecimal(1000);
+        bankAccount.setBalance(initialAmount);
+        bankAccountRepository.saveAndFlush(bankAccount);
+        int databaseSizeBefore = bankAccountRepository.findAll().size();
+
+        BigDecimal amount = initialAmount.divide(new BigDecimal(5));
+        AmountDTO amountDTO = new AmountDTO(bankAccount.getId(), amount);
+
+        // Do the operation
+        restBankAccountMockMvc.perform(post("/api/bank-accounts/withdraw")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(amountDTO)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").value(bankAccount.getId().intValue()))
+            .andExpect(jsonPath("$.userId").value(DEFAULT_USER_ID.intValue()))
+            .andExpect(jsonPath("$.balance").value(initialAmount.subtract(amount).intValue()));
+
+        // Validate the database has the same size
+        List<BankAccount> bankAccounts = bankAccountRepository.findAll();
+        assertThat(bankAccounts).hasSize(databaseSizeBefore);
     }
 }

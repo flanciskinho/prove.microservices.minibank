@@ -2,6 +2,7 @@ package org.example.minibank.account.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import org.example.minibank.account.service.BankAccountService;
+import org.example.minibank.account.service.dto.AmountDTO;
 import org.example.minibank.account.web.rest.util.HeaderUtil;
 import org.example.minibank.account.web.rest.util.PaginationUtil;
 import org.example.minibank.account.service.dto.BankAccountDTO;
@@ -32,9 +33,42 @@ import java.util.stream.Collectors;
 public class BankAccountResource {
 
     private final Logger log = LoggerFactory.getLogger(BankAccountResource.class);
-        
+
     @Inject
     private BankAccountService bankAccountService;
+
+
+    /**
+     * POST  /bank-accounts/add : add amount to a specific account
+     */
+    @RequestMapping(value = "/bank-accounts/add",
+        method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<BankAccountDTO> addAmount(@Valid @RequestBody AmountDTO amountDTO) throws URISyntaxException {
+        log.debug("REST request to save amountDTO : {}", amountDTO);
+
+        BankAccountDTO result = bankAccountService.addAmount(amountDTO);
+        return (result == null) ?
+            ResponseEntity.badRequest().body(null):
+            ResponseEntity.created(new URI("api//bank-accounts/" + result.getId())).body(result);
+    }
+
+    /**
+     * POST  /bank-accounts/withdraw : withdraw amount to a specific account
+     */
+    @RequestMapping(value = "/bank-accounts/withdraw",
+        method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<BankAccountDTO> witDraw(@Valid @RequestBody AmountDTO amountDTO) throws URISyntaxException {
+        log.debug("REST request to save amountDTO : {}", amountDTO);
+
+        BankAccountDTO result = bankAccountService.withdrawAmount(amountDTO);
+        return (result == null) ?
+            ResponseEntity.badRequest().body(null):
+            ResponseEntity.created(new URI("api//bank-accounts/" + result.getId())).body(result);
+    }
 
     /**
      * POST  /bank-accounts : Create a new bankAccount.
