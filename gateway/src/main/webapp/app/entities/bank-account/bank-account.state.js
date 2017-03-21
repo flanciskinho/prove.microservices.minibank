@@ -82,33 +82,7 @@
                     return currentStateData;
                 }]
             }
-        })
-        .state('bank-account-detail.edit', {
-            parent: 'bank-account-detail',
-            url: '/detail/edit',
-            data: {
-                authorities: ['ROLE_USER']
-            },
-            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
-                $uibModal.open({
-                    templateUrl: 'app/entities/bank-account/bank-account-dialog.html',
-                    controller: 'BankAccountDialogController',
-                    controllerAs: 'vm',
-                    backdrop: 'static',
-                    size: 'lg',
-                    resolve: {
-                        entity: ['BankAccount', function(BankAccount) {
-                            return BankAccount.get({id : $stateParams.id}).$promise;
-                        }]
-                    }
-                }).result.then(function() {
-                    $state.go('^', {}, { reload: false });
-                }, function() {
-                    $state.go('^');
-                });
-            }]
-        })
-        .state('bank-account.new', {
+        }).state('bank-account.new', {
             parent: 'bank-account',
             url: '/new',
             data: {
@@ -136,53 +110,58 @@
                     $state.go('bank-account');
                 });
             }]
-        })
-        .state('bank-account.edit', {
-            parent: 'bank-account',
-            url: '/{id}/edit',
+        }).state('bank-account-detail.add', {
+            parent: 'bank-account-detail',
+            url: '/add',
             data: {
                 authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
-                    templateUrl: 'app/entities/bank-account/bank-account-dialog.html',
-                    controller: 'BankAccountDialogController',
+                    templateUrl: 'app/entities/bank-account/bank-account-add.html',
+                    controller: 'BankAccountAddController',
                     controllerAs: 'vm',
                     backdrop: 'static',
                     size: 'lg',
                     resolve: {
-                        entity: ['BankAccount', function(BankAccount) {
-                            return BankAccount.get({id : $stateParams.id}).$promise;
+                        entity: ['$stateParams', function($stateParams) {
+                            return {
+                                accountId : $stateParams.id,
+                                amount: null
+                            };
                         }]
                     }
                 }).result.then(function() {
                     $state.go('bank-account', null, { reload: 'bank-account' });
                 }, function() {
-                    $state.go('^');
+                    $state.go('bank-account-detail');
                 });
             }]
-        })
-        .state('bank-account.delete', {
-            parent: 'bank-account',
-            url: '/{id}/delete',
+        }).state('bank-account-detail.withdraw', {
+            parent: 'bank-account-detail',
+            url: '/withdraw',
             data: {
                 authorities: ['ROLE_USER']
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
-                    templateUrl: 'app/entities/bank-account/bank-account-delete-dialog.html',
-                    controller: 'BankAccountDeleteController',
+                    templateUrl: 'app/entities/bank-account/bank-account-withdraw.html',
+                    controller: 'BankAccountWithdrawController',
                     controllerAs: 'vm',
-                    size: 'md',
+                    backdrop: 'static',
+                    size: 'lg',
                     resolve: {
-                        entity: ['BankAccount', function(BankAccount) {
-                            return BankAccount.get({id : $stateParams.id}).$promise;
+                        entity: ['$stateParams', function($stateParams) {
+                            return {
+                                accountId : $stateParams.id,
+                                amount: null
+                            };
                         }]
                     }
                 }).result.then(function() {
                     $state.go('bank-account', null, { reload: 'bank-account' });
                 }, function() {
-                    $state.go('^');
+                    $state.go('bank-account-detail');
                 });
             }]
         });

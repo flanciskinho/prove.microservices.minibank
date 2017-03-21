@@ -194,13 +194,15 @@ public class UserResource {
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public ResponseEntity<LoginProfileDTO> getUser(@PathVariable Long id) {
+    public ResponseEntity<List<LoginProfileDTO>> getUser(@PathVariable List<Long> id) {
         log.debug("REST request to get LoginProfile : {}", id);
-        User user = userService.getUserWithAuthorities(id);
-        return (user == null)?
-            new ResponseEntity(HttpStatus.NOT_FOUND):
-            new ResponseEntity(new LoginProfileDTO(user), HttpStatus.OK);
+        List<User> list = userService.getUserById(id);
+
+        return new ResponseEntity(
+            list.stream().map(LoginProfileDTO::new).collect(Collectors.toList()),
+            HttpStatus.OK);
     }
+
 
     /**
      * DELETE /users/:login : delete the "login" User.

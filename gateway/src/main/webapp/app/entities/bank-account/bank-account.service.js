@@ -20,7 +20,9 @@
                     return data;
                 }
             },
-            'update': { method:'PUT' }
+            'update': { method:'PUT' },
+            'add': {method:'POST', url: 'account/api/bank-accounts/add'},
+            'withdraw': {method:'POST', url: 'account/api/bank-accounts/withdraw'}
         });
     }
 })();

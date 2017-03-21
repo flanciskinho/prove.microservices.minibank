@@ -2,6 +2,7 @@ package org.example.minibank.account.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import org.example.minibank.account.service.BankAccountService;
+import org.example.minibank.account.service.dto.AmountDTO;
 import org.example.minibank.account.web.rest.util.HeaderUtil;
 import org.example.minibank.account.web.rest.util.PaginationUtil;
 import org.example.minibank.account.service.dto.BankAccountDTO;
@@ -32,9 +33,42 @@ import java.util.stream.Collectors;
 public class BankAccountResource {
 
     private final Logger log = LoggerFactory.getLogger(BankAccountResource.class);
-        
+
     @Inject
     private BankAccountService bankAccountService;
+
+
+    /**
+     * POST  /bank-accounts/add : add amount to a specific account
+     */
+    @RequestMapping(value = "/bank-accounts/add",
+        method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<BankAccountDTO> addAmount(@Valid @RequestBody AmountDTO amountDTO) throws URISyntaxException {
+        log.debug("REST request to save amountDTO : {}", amountDTO);
+
+        BankAccountDTO result = bankAccountService.addAmount(amountDTO);
+        return (result == null) ?
+            ResponseEntity.badRequest().body(null):
+            ResponseEntity.created(new URI("api//bank-accounts/" + result.getId())).body(result);
+    }
+
+    /**
+     * POST  /bank-accounts/withdraw : withdraw amount to a specific account
+     */
+    @RequestMapping(value = "/bank-accounts/withdraw",
+        method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<BankAccountDTO> witDraw(@Valid @RequestBody AmountDTO amountDTO) throws URISyntaxException {
+        log.debug("REST request to save amountDTO : {}", amountDTO);
+
+        BankAccountDTO result = bankAccountService.withdrawAmount(amountDTO);
+        return (result == null) ?
+            ResponseEntity.badRequest().body(null):
+            ResponseEntity.created(new URI("api//bank-accounts/" + result.getId())).body(result);
+    }
 
     /**
      * POST  /bank-accounts : Create a new bankAccount.
@@ -53,32 +87,10 @@ public class BankAccountResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("bankAccount", "idexists", "A new bankAccount cannot already have an ID")).body(null);
         }
         BankAccountDTO result = bankAccountService.save(bankAccountDTO);
-        return ResponseEntity.created(new URI("/api/bank-accounts/" + result.getId()))
+        return (result == null) ?
+            ResponseEntity.badRequest().body(null):
+            ResponseEntity.created(new URI("/api/bank-accounts/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("bankAccount", result.getId().toString()))
-            .body(result);
-    }
-
-    /**
-     * PUT  /bank-accounts : Updates an existing bankAccount.
-     *
-     * @param bankAccountDTO the bankAccountDTO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated bankAccountDTO,
-     * or with status 400 (Bad Request) if the bankAccountDTO is not valid,
-     * or with status 500 (Internal Server Error) if the bankAccountDTO couldnt be updated
-     * @throws URISyntaxException if the Location URI syntax is incorrect
-     */
-    @RequestMapping(value = "/bank-accounts",
-        method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<BankAccountDTO> updateBankAccount(@Valid @RequestBody BankAccountDTO bankAccountDTO) throws URISyntaxException {
-        log.debug("REST request to update BankAccount : {}", bankAccountDTO);
-        if (bankAccountDTO.getId() == null) {
-            return createBankAccount(bankAccountDTO);
-        }
-        BankAccountDTO result = bankAccountService.save(bankAccountDTO);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert("bankAccount", bankAccountDTO.getId().toString()))
             .body(result);
     }
 
@@ -120,21 +132,4 @@ public class BankAccountResource {
                 HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
-    /**
-     * DELETE  /bank-accounts/:id : delete the "id" bankAccount.
-     *
-     * @param id the id of the bankAccountDTO to delete
-     * @return the ResponseEntity with status 200 (OK)
-     */
-    @RequestMapping(value = "/bank-accounts/{id}",
-        method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<Void> deleteBankAccount(@PathVariable Long id) {
-        log.debug("REST request to delete BankAccount : {}", id);
-        bankAccountService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("bankAccount", id.toString())).build();
-    }
-
 }

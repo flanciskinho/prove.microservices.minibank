@@ -19,6 +19,16 @@ eureka:
 ribbon:
     eureka:
         enabled: true
+    ConnectTimeout: 3000
+    ReadTimeout: 5000
+
+hystrix:
+    command.default.execution.isolation.thread.timeoutInMilliseconds: 2000
+    threadpool:
+        default:
+            coreSize: 50
+            maxQueueSize: 100
+            queueSizeRejectionThreshold: 50
 
 management:
     context-path: /management

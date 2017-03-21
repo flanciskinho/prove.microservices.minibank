@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,6 +40,7 @@ public class AccountOperationService {
      */
     public AccountOperationDTO save(AccountOperationDTO accountOperationDTO) {
         log.debug("Request to save AccountOperation : {}", accountOperationDTO);
+        accountOperationDTO.setDate(ZonedDateTime.now());
         AccountOperation accountOperation = accountOperationMapper.accountOperationDTOToAccountOperation(accountOperationDTO);
         accountOperation = accountOperationRepository.save(accountOperation);
         AccountOperationDTO result = accountOperationMapper.accountOperationToAccountOperationDTO(accountOperation);
