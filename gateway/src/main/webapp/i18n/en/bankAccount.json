@@ -14,7 +14,17 @@
                 "question": "Are you sure you want to delete Account {{ id }}?"
             },
             "detail": {
-                "title": "Bank Account"
+                "title": "Bank Account",
+                "add": {
+                    "title": "Add amount",
+                    "button": "Add",
+                    "label": "Amount"
+                },
+                "withdraw": {
+                    "title": "Withdraw amount",
+                    "button": "Withdraw",
+                    "label": "Amount"
+                }
             },
             "userId": "Owner",
             "balance": "Balance",

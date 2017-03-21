@@ -14,7 +14,11 @@
                 "question": "¿Seguro que quiere eliminar la cuenta {{ id }}?"
             },
             "detail": {
-                "title": "Cuenta bancaria"
+                "title": "Cuenta bancaria",
+                "operation": {
+                    "add": "Añadir",
+                    "withdraw": "Retirar"
+                }
             },
             "userId": "Propietario",
             "balance": "Balance",

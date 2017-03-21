@@ -110,6 +110,60 @@
                     $state.go('bank-account');
                 });
             }]
+        }).state('bank-account-detail.add', {
+            parent: 'bank-account-detail',
+            url: '/add',
+            data: {
+                authorities: ['ROLE_USER']
+            },
+            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
+                $uibModal.open({
+                    templateUrl: 'app/entities/bank-account/bank-account-add.html',
+                    controller: 'BankAccountAddController',
+                    controllerAs: 'vm',
+                    backdrop: 'static',
+                    size: 'lg',
+                    resolve: {
+                        entity: ['$stateParams', function($stateParams) {
+                            return {
+                                accountId : $stateParams.id,
+                                amount: null
+                            };
+                        }]
+                    }
+                }).result.then(function() {
+                    $state.go('bank-account', null, { reload: 'bank-account' });
+                }, function() {
+                    $state.go('bank-account-detail');
+                });
+            }]
+        }).state('bank-account-detail.withdraw', {
+            parent: 'bank-account-detail',
+            url: '/withdraw',
+            data: {
+                authorities: ['ROLE_USER']
+            },
+            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
+                $uibModal.open({
+                    templateUrl: 'app/entities/bank-account/bank-account-withdraw.html',
+                    controller: 'BankAccountWithdrawController',
+                    controllerAs: 'vm',
+                    backdrop: 'static',
+                    size: 'lg',
+                    resolve: {
+                        entity: ['$stateParams', function($stateParams) {
+                            return {
+                                accountId : $stateParams.id,
+                                amount: null
+                            };
+                        }]
+                    }
+                }).result.then(function() {
+                    $state.go('bank-account', null, { reload: 'bank-account' });
+                }, function() {
+                    $state.go('bank-account-detail');
+                });
+            }]
         });
     }
 
