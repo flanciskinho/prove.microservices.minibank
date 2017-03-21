@@ -195,6 +195,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public List<User> getUserById(List<Long> ids) {
+        return userRepository.findAll(ids);
+    }
+
+    @Transactional(readOnly = true)
     public User getUserWithAuthorities() {
         Optional<User> optionalUser = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin());
         User user = null;

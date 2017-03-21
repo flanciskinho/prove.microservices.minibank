@@ -19,7 +19,8 @@
             },
             'save': { method:'POST' },
             'update': { method:'PUT' },
-            'delete':{ method:'DELETE'}
+            'delete':{ method:'DELETE'},
+            'login': {method: 'GET', url: 'api/users/login/:id', isArray:true}
         });
 
         return service;

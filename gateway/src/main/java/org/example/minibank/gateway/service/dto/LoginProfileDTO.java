@@ -12,6 +12,8 @@ import javax.validation.constraints.Size;
  */
 public class LoginProfileDTO {
 
+    private Long id;
+
     @NotNull
     @Pattern(regexp = Constants.LOGIN_REGEX)
     @Size(min = 1, max = 50)
@@ -27,9 +29,14 @@ public class LoginProfileDTO {
     }
 
     public LoginProfileDTO(User user) {
+        this.id = user.getId();
         this.login = user.getLogin();
         this.firstName = user.getFirstName();
         this.langKey = user.getLangKey();
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getLogin() {
